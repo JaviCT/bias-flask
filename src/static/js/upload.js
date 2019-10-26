@@ -1,4 +1,5 @@
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdf.worker.js';
+var pdfjsLib = window['pdfjs-dist/build/pdf'];
+pdfjsLib.GlobalWorkerOptions.workerSrc = './static/js/pdf.worker.js';
 var __PDF_DOC,
 	__CURRENT_PAGE,
 	__TOTAL_PAGES,
@@ -57,7 +58,15 @@ function showPage(page_no) {
 		var renderContext = {
 			canvasContext: __CANVAS_CTX,
 			viewport: viewport
-		};
+        };
+        
+        // page.getOperatorList().then(function (ops) {
+        //     for (var i=0; i < ops.fnArray.length; i++) {
+        //         if (ops.fnArray[i] == PDFJS.OPS.paintJpegXObject) {
+        //             document.getElementById("image").src = ops.argsArray[i][0]
+        //         }
+        //     }
+        // })
 		
 		// Render the page contents in the canvas
 		page.render(renderContext).then(function() {
@@ -73,6 +82,33 @@ function showPage(page_no) {
 	});
 }
 
+async function gettext(pdfUrl){
+    var pdf = pdfjsLib.getDocument({ url: pdfUrl })
+    return pdf.then(function(pdf_doc) {
+		var maxPages = pdf_doc.numPages;
+        var countPromises = []; // collecting all page promises
+        for (var j = 1; j <= maxPages; j++) {
+            var page = pdf_doc.getPage(j);
+
+            var txt = "";
+            countPromises.push(page.then(function(page) { // add page promise
+                var textContent = page.getTextContent();
+                return textContent.then(function(text){ // return content promise
+                    return text.items.map(function (s) { return s.str; }).join(''); // value page text 
+
+                });
+            }));
+        }
+        // Wait for all pages and join text
+        return Promise.all(countPromises).then(function (texts) {
+        
+            return texts.join('');
+        });
+	}).catch(function(error) {
+		alert(error.message);
+	});
+}
+
 // Upon click this should should trigger click on the #file-to-upload file input element
 // This is better than showing the not-good-looking file input element
 $("#upload-button").on('click', function() {
@@ -80,7 +116,7 @@ $("#upload-button").on('click', function() {
 });
 
 // When user chooses a PDF file
-$("#file-to-upload").on('change', function() {
+$("#file-to-upload").on('change', async function() {
 	// Validate whether PDF
     if(['application/pdf'].indexOf($("#file-to-upload").get(0).files[0].type) == -1) {
         alert('Error : Not a PDF');
@@ -90,7 +126,9 @@ $("#file-to-upload").on('change', function() {
   $("#upload-button").hide();
 
 	// Send the object url of the pdf
-	showPDF(URL.createObjectURL($("#file-to-upload").get(0).files[0]));
+    showPDF(URL.createObjectURL($("#file-to-upload").get(0).files[0]));
+    var text = await gettext(URL.createObjectURL($("#file-to-upload").get(0).files[0]))
+    document.getElementById("text").innerHTML = text
 });
 
 // Previous page of the PDF
@@ -104,3 +142,47 @@ $("#pdf-next").on('click', function() {
 	if(__CURRENT_PAGE != __TOTAL_PAGES)
 		showPage(++__CURRENT_PAGE);
 });
+
+// If absolute URL from the remote server is provided, configure the CORS
+// header on that server.
+// var url = 'https://raw.githubusercontent.com/mozilla/pdf.js/ba2edeae/examples/learning/helloworld.pdf';
+
+// // Loaded via <script> tag, create shortcut to access PDF.js exports.
+// var pdfjsLib = window['pdfjs-dist/build/pdf'];
+
+// // The workerSrc property shall be specified.
+// pdfjsLib.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
+
+// // Asynchronous download of PDF
+// var loadingTask = pdfjsLib.getDocument(url);
+// loadingTask.promise.then(function(pdf) {
+//   console.log('PDF loaded');
+  
+//   // Fetch the first page
+//   var pageNumber = 1;
+//   pdf.getPage(pageNumber).then(function(page) {
+//     console.log('Page loaded');
+    
+//     var scale = 1.5;
+//     var viewport = page.getViewport({scale: scale});
+
+//     // Prepare canvas using PDF page dimensions
+//     var canvas = document.getElementById('the-canvas');
+//     var context = canvas.getContext('2d');
+//     canvas.height = viewport.height;
+//     canvas.width = viewport.width;
+
+//     // Render PDF page into canvas context
+//     var renderContext = {
+//       canvasContext: context,
+//       viewport: viewport
+//     };
+//     var renderTask = page.render(renderContext);
+//     renderTask.promise.then(function () {
+//       console.log('Page rendered');
+//     });
+//   });
+// }, function (reason) {
+//   // PDF loading error
+//   console.error(reason);
+// });

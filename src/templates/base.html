@@ -4,11 +4,8 @@
     {{super()}}
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
-    <script  href="{{ url_for('static', filename='js/upload.js') }}"></script>
-    <script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>
-
-    <!-- <script  href="{{ url_for('static', filename='js/pdf.js') }}"></script> -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="./static/js/pdf.js"></script>
 {% endblock %}
 
 {% block title %}
