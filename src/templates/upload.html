@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+
+    <!-- <script  type="text/javascript" src="static/js/build/pdf.js"></script> -->
+    <div class="container">
+
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <div class="login-panel panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Upload your hola's captures:</h3>
+                    </div>
+                    <div class="panel-body">
+                        <button id="upload-button">Select PDF</button> 
+                        <input type="file" id="file-to-upload" accept="application/pdf" />
+                        <div id="pdf-main-container">
+                            <div id="pdf-loader">Loading document ...</div>
+                            <div id="pdf-contents">
+                                <div id="pdf-meta">
+                                    <div id="pdf-buttons">
+                                        <button id="pdf-prev">Previous</button>
+                                        <button id="pdf-next">Next</button>
+                                    </div>
+                                    <div id="page-count-container">Page <div id="pdf-current-page"></div> of <div id="pdf-total-pages"></div></div>
+                                </div>
+                                <canvas id="pdf-canvas" width="400"></canvas>
+                                <div id="page-loader">Loading page ...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

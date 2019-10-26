@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+
+    <div class="jumbotron">
+
+        <img class="card-img-top img-responsive"
+        src="{{ url_for('static', filename='banner.jpg') }}">
+
+        <h4 class="lead"><strong>Animal classification powered by AI:</strong>
+            we combined pictures of animals with concepts of deep learning to create software
+            that classifies animals.</h4>
+
+        <hr class="my-4">
+
+        <h4 class="lead">
+            Our team combines pictures of animals with concepts of deep learning to create software
+            that classifies animals.
+        </h4>
+
+        <h4 class="lead">
+            <a class="btn btn-primary btn-lg" href="upload" role="button">Try it out!</a>
+        </h4>
+
+    </div>
+
+{% endblock %}
