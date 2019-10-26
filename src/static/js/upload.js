@@ -10,7 +10,10 @@ var __PDF_DOC,
 function showPDF(pdf_url) {
 	$("#pdf-loader").show();
 
-	pdfjsLib.getDocument({ url: pdf_url }).then(function(pdf_doc) {
+	pdfjsLib.getDocument({
+    url: pdf_url,
+    nativeImageDecoderSupport: pdfjsLib.NativeImageDecoding.NONE,
+  }).then(function(pdf_doc) {
 		__PDF_DOC = pdf_doc;
 		__TOTAL_PAGES = __PDF_DOC.numPages;
 		
@@ -58,16 +61,29 @@ function showPage(page_no) {
 		var renderContext = {
 			canvasContext: __CANVAS_CTX,
 			viewport: viewport
-        };
+    };
+    // window.objs = []
+    page.getOperatorList().then(function (ops) {
+      console.log(ops);
+      console.log(pdfjsLib.OPS.paintJpegXObject);
+      
+      for (var i=0; i < ops.fnArray.length; i++) {
+        // console.log(ops.argsArray[i][0]);
         
-        // page.getOperatorList().then(function (ops) {
-        //     for (var i=0; i < ops.fnArray.length; i++) {
-        //         if (ops.fnArray[i] == PDFJS.OPS.paintJpegXObject) {
-        //             document.getElementById("image").src = ops.argsArray[i][0]
-        //         }
-        //     }
-        // })
-		
+        if (ops.fnArray[i] == pdfjsLib.OPS.paintImageXObject) {
+          console.log(ops.argsArray[i]);
+          
+          
+          // window.objs.push(ops.argsArray[i][0])
+          var image = page.objs.get(ops.argsArray[i][0])
+          console.log(image);
+          
+          document.getElementById("image").src = image.data
+        }
+      }
+    })
+    
+    // console.log(window.args.map(function (a) { page.objs.get(a) }))
 		// Render the page contents in the canvas
 		page.render(renderContext).then(function() {
 			__PAGE_RENDERING_IN_PROGRESS = 0;
